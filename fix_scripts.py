@@ -1,4 +1,5 @@
-from datacenter.models import Mark, Schoolkid, Chastisement
+from datacenter.models import Mark, Schoolkid, Chastisement, Lesson, Commendation
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 import random
 
 
@@ -51,8 +52,15 @@ def create_commendation(full_name, subject_title):
         'Ты многое сделал, я это вижу!',
         'Теперь у тебя точно все получится!',
     ]
-    child = Schoolkid.objects.filter(full_name__contains = full_name)
-    lessons = Lesson.objects.filter(year_of_study = child[0].year_of_study, group_letter = child[0].group_letter, subject__title__contains = subject_title).order_by('-date')
-    Commendation.objects.create(text=random.choice(commendations), created = lessons.first().date, schoolkid = child[0], subject = lessons.first().subject, teacher = lessons.first().teacher)
+
+    try:
+        child = Schoolkid.objects.get(full_name__contains = full_name)
+    except ObjectDoesNotExist:
+        return 'Такого ученика нет в базе данных'
+    except MultipleObjectsReturned:
+        return 'Слишком много совпадений, уточните поиск'
+
+    lessons = Lesson.objects.filter(year_of_study = child.year_of_study, group_letter = child.group_letter, subject__title__contains = subject_title).order_by('-date')
+    Commendation.objects.create(text=random.choice(commendations), created = lessons.first().date, schoolkid = child, subject = lessons.first().subject, teacher = lessons.first().teacher)
     return 'похвала успешно добавлена'
 
