@@ -56,11 +56,19 @@ def create_commendation(full_name, subject_title):
     try:
         child = Schoolkid.objects.get(full_name__contains = full_name)
     except ObjectDoesNotExist:
-        return 'Такого ученика нет в базе данных'
+        return 'Такого ученика нет в базе данных. Попробуйте ввести запрос по-другому'
     except MultipleObjectsReturned:
         return 'Слишком много совпадений, уточните поиск'
 
-    lessons = Lesson.objects.filter(year_of_study = child.year_of_study, group_letter = child.group_letter, subject__title__contains = subject_title).order_by('-date')
-    Commendation.objects.create(text=random.choice(commendations), created = lessons.first().date, schoolkid = child, subject = lessons.first().subject, teacher = lessons.first().teacher)
+    try:
+        lessons = Lesson.objects.get(year_of_study = child.year_of_study, group_letter = child.group_letter, subject__title__contains = subject_title)
+    except ObjectDoesNotExist:
+        return 'Такого предмета не существует. Попробуйте ввести по-другому'
+    except MultipleObjectsReturned:
+        last_lesson = Lesson.objects.filter(year_of_study = child.year_of_study, group_letter = child.group_letter, subject__title__contains = subject_title).order_by('-date').first()
+        
+
+    
+    Commendation.objects.create(text=random.choice(commendations), created = last_lesson.date, schoolkid = child, subject = last_lesson.subject, teacher = last_lesson.teacher)
     return 'похвала успешно добавлена'
 
