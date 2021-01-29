@@ -71,22 +71,22 @@ def create_commendation(full_name, subject_title):
         return 'Слишком много совпадений, уточните поиск'
 
     try:
-        Lesson.objects.get(
+        lesson = Lesson.objects.get(
             year_of_study=child.year_of_study,
             group_letter=child.group_letter,
             subject__title__contains=subject_title)
     except ObjectDoesNotExist:
         return 'Такого предмета не существует. Попробуйте ввести по-другому'
     except MultipleObjectsReturned:
-        last_lesson = Lesson.objects.filter(
+        lesson = Lesson.objects.filter(
             year_of_study=child.year_of_study,
             group_letter=child.group_letter,
             subject__title__contains=subject_title).order_by('-date').first()
 
     Commendation.objects.create(
         text=random.choice(commendations),
-        created=last_lesson.date,
+        created=lesson.date,
         schoolkid=child,
-        subject=last_lesson.subject,
-        teacher=last_lesson.teacher)
+        subject=lesson.subject,
+        teacher=lesson.teacher)
     return 'похвала успешно добавлена'
