@@ -71,7 +71,7 @@ def create_commendation(full_name, subject_title):
         return 'Слишком много совпадений, уточните поиск'
 
     try:
-        lessons = Lesson.objects.get(
+        Lesson.objects.get(
             year_of_study=child.year_of_study,
             group_letter=child.group_letter,
             subject__title__contains=subject_title)
