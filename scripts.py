@@ -23,8 +23,8 @@ def fix_marks(schoolkid):
 
 
 def remove_chastisements(schoolkid):
-    all_chistisements = Chastisement.objects.filter(schoolkid=schoolkid)
-    all_chistisements.delete()
+    chistisements = Chastisement.objects.filter(schoolkid=schoolkid)
+    chistisements.delete()
     return 'Все замечания успешно удалены'
 
 
