@@ -8,10 +8,12 @@ from datacenter.models import Commendation
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 
-def fix_marks(schoolkid):
-    bad_marks = Mark.objects.filter(schoolkid=schoolkid, points__in=[2, 3])
-    desired_evaluations = input('У вас {} плохих оценок. \
-        На какую оценку вы хотели бы их исправить?'.format(bad_marks.count()))
+def fix_marks(schoolkid, desired_evaluations):
+    try:
+        bad_marks = Mark.objects.filter(schoolkid=schoolkid, points__in=[2, 3])
+    except Mark.DoesNotExists
+        return 'У вас нет плохих оценок'
+
     if desired_evaluations == '4' or desired_evaluations == '5':
         Mark.objects.filter(
             schoolkid=schoolkid,
@@ -19,7 +21,7 @@ def fix_marks(schoolkid):
         return 'Поздравляем, вы успешно исправили все плохие оценки. \
                 Учитесь хорошо!'
     else:
-        print('Некорректное значение. Введите желаемую оценку: 4 или 5')
+        return 'Введено неверное значение, попробуйте ввести 4 или 5'
 
 
 def remove_chastisements(schoolkid):
@@ -90,3 +92,6 @@ def create_commendation(full_name, subject_title):
         subject=lesson.subject,
         teacher=lesson.teacher)
     return 'похвала успешно добавлена'
+
+
+def main():
