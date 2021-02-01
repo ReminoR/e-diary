@@ -10,24 +10,35 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 def fix_marks(schoolkid, desired_evaluations):
     try:
-        bad_marks = Mark.objects.filter(schoolkid=schoolkid, points__in=[2, 3])
-    except Mark.DoesNotExists
-        return 'У вас нет плохих оценок'
+        Mark.objects.filter(schoolkid=schoolkid,
+                            points__in=[2, 3]).get()
+    except ObjectDoesNotExist:
+        return 'Поздравляем! У вас нет ни одной плохой оценки!'
+    except MultipleObjectsReturned:
+        Mark.objects.filter(schoolkid=schoolkid,
+                            points__in=[2, 3])
 
-    if desired_evaluations == '4' or desired_evaluations == '5':
+    if desired_evaluations == 4 or desired_evaluations == 5:
         Mark.objects.filter(
             schoolkid=schoolkid,
             points__in=[2, 3]).update(points=desired_evaluations)
-        return 'Поздравляем, вы успешно исправили все плохие оценки. \
+
+        return 'Поздравляем, вы успешно исправили все плохие оценки.\
                 Учитесь хорошо!'
     else:
         return 'Введено неверное значение, попробуйте ввести 4 или 5'
 
 
 def remove_chastisements(schoolkid):
-    chistisements = Chastisement.objects.filter(schoolkid=schoolkid)
-    chistisements.delete()
-    return 'Все замечания успешно удалены'
+    try:
+        chistisements = Chastisement.objects.filter(schoolkid=schoolkid).get()
+        chistisements.delete()
+    except ObjectDoesNotExist:
+        return 'Замечания не найдены. Вы молодец!'
+    except MultipleObjectsReturned:
+        chistisements = Chastisement.objects.filter(schoolkid=schoolkid)
+        chistisements.delete()
+        return 'Все замечания успешно удалены'
 
 
 def create_commendation(full_name, subject_title):
@@ -66,7 +77,7 @@ def create_commendation(full_name, subject_title):
 
     try:
         child = Schoolkid.objects.get(full_name__contains=full_name)
-    except ObjectDoesNotExist:
+    except Schoolkid.DoesNotExists:
         return 'Такого ученика нет в базе данных. \
                 Попробуйте ввести запрос по-другому'
     except MultipleObjectsReturned:
@@ -77,7 +88,7 @@ def create_commendation(full_name, subject_title):
             year_of_study=child.year_of_study,
             group_letter=child.group_letter,
             subject__title__contains=subject_title)
-    except ObjectDoesNotExist:
+    except Lesson.DoesNotExist:
         return 'Такого предмета не существует. Попробуйте ввести по-другому'
     except MultipleObjectsReturned:
         lesson = Lesson.objects.filter(
@@ -92,6 +103,3 @@ def create_commendation(full_name, subject_title):
         subject=lesson.subject,
         teacher=lesson.teacher)
     return 'похвала успешно добавлена'
-
-
-def main():
