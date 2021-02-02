@@ -77,7 +77,7 @@ def create_commendation(full_name, subject_title):
 
     try:
         child = Schoolkid.objects.get(full_name__contains=full_name)
-    except Schoolkid.DoesNotExists:
+    except Schoolkid.DoesNotExist:
         return 'Такого ученика нет в базе данных. \
                 Попробуйте ввести запрос по-другому'
     except MultipleObjectsReturned:
